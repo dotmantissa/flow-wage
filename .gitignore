@@ -1,0 +1,38 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+tmpvite/
+*.local
+.env
+.env.local
+.env.*.local
+.env.deploy
+foundry_contracts/out/
+foundry_contracts/cache/
+foundry_contracts/lib/
+foundry_contracts/broadcast/
+foundry_contracts/cache_forge/
+
+# Optional local package manager caches
+.pnpm-store/
+.npm/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

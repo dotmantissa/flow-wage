@@ -1,0 +1,6 @@
+[
+  {"type":"function","name":"hasVault","stateMutability":"view","inputs":[{"name":"employer","type":"address"}],"outputs":[{"name":"","type":"bool"}]},
+  {"type":"function","name":"getVault","stateMutability":"view","inputs":[{"name":"employer","type":"address"}],"outputs":[{"name":"","type":"address"}]},
+  {"type":"function","name":"computeVaultAddress","stateMutability":"view","inputs":[{"name":"employer","type":"address"}],"outputs":[{"name":"predicted","type":"address"}]},
+  {"type":"function","name":"deployVault","stateMutability":"nonpayable","inputs":[],"outputs":[{"name":"vault","type":"address"}]}
+]

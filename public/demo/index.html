@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flow | WAGE Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; font-family: 'DM Sans', sans-serif; background:#0b0e14; color:#e6edf3; }
+    .mono{font-family:'IBM Plex Mono',monospace}
+    .container{max-width:1100px;margin:0 auto;padding:16px}
+    .tabs{display:flex;gap:8px}
+    .tab{background:#121826;border:1px solid #293247;color:#cbd5e1;padding:8px 12px;border-radius:8px;cursor:pointer}
+    .tab.active{background:#00e5b422;color:#00e5b4;border-color:#00e5b4}
+    .panel{display:none;margin-top:16px}
+    .panel.active{display:block}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .card{background:#121826;border:1px solid #293247;border-radius:12px;padding:14px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid #293247;text-align:left;font-size:14px}
+    .btn{background:#00e5b4;color:#001910;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
+    .badge{padding:2px 8px;border-radius:999px;font-size:12px}
+    .ok{background:#00e5b422;color:#00e5b4}.warn{background:#f59e0b22;color:#fbbf24}.bad{background:#ef444422;color:#f87171}
+    .hero{font-size:56px;text-align:center;margin:16px 0 6px}
+    .banner{margin-top:12px;padding:10px;border-radius:8px;background:#16a34a33;color:#86efac;display:none}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" data-tab="employer">Employer</button>
+      <button class="tab" data-tab="employee">Employee</button>
+      <button class="tab" data-tab="log">On-Chain Log</button>
+    </div>
+
+    <section id="employer" class="panel active">
+      <div class="grid">
+        <div class="card"><div>Vault Balance</div><div id="vaultBal" class="mono" style="font-size:28px">250000.000000</div></div>
+        <div class="card"><div>Streaming Rate</div><div id="rate" class="mono" style="font-size:28px">0.00002895</div></div>
+        <div class="card"><div>Employees</div><div class="mono" style="font-size:28px">3</div></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Name</th><th>Currency</th><th>Claimable</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="empRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="employee" class="panel">
+      <div class="card">
+        <div style="text-align:center">
+          <div>Available to Withdraw</div>
+          <div id="counter" class="mono hero">0.000000</div>
+          <div id="subtitle">Earning 0.00000965 USDT/sec</div>
+          <div style="margin-top:8px">HKD 7.82 | PHP 56.21 | IDR 15740 | INR 83.11</div>
+          <button id="withdraw" class="btn" style="margin-top:12px">Withdraw All</button>
+          <div id="confirm" class="banner mono"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="log" class="panel">
+      <div class="card">
+        <table>
+          <thead><tr><th>Block</th><th>Type</th><th>Details</th><th>Tx Hash</th></tr></thead>
+          <tbody id="logRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const tabs=[...document.querySelectorAll('.tab')]
+    tabs.forEach(t=>t.onclick=()=>{tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById(t.dataset.tab).classList.add('active')})
+
+    const rows=[
+      {name:'Alice Reyes',ccy:'PHP',claim:1.0,status:'Active'},
+      {name:'Budi Santoso',ccy:'IDR',claim:0.8,status:'Paused'},
+      {name:'Priya Nair',ccy:'INR',claim:1.2,status:'Active'},
+    ]
+    const empRows=document.getElementById('empRows')
+    function renderRows(){
+      empRows.innerHTML=rows.map(r=>`<tr><td>${r.name}</td><td>${r.ccy}</td><td class="mono">${r.claim.toFixed(6)}</td><td><span class="badge ${r.status==='Active'?'ok':'warn'}">${r.status}</span></td><td><button class="btn">Pause</button> <button class="btn" style="background:#ef4444;color:white">Cancel</button></td></tr>`).join('')
+    }
+    renderRows()
+
+    let employerTick=0
+    setInterval(()=>{employerTick+=0.00001;rows.forEach(r=>r.claim+=0.00001);document.getElementById('vaultBal').textContent=(250000+employerTick*1000).toFixed(6);renderRows()},250)
+
+    let counter=0
+    let earning=0.00000965
+    function tick(){counter+=earning/4;document.getElementById('counter').textContent=counter.toFixed(6)}
+    setInterval(tick,250)
+
+    document.getElementById('withdraw').onclick=()=>{
+      const btn=document.getElementById('withdraw')
+      const conf=document.getElementById('confirm')
+      btn.disabled=true; btn.textContent='Confirming...'
+      setTimeout(()=>{counter=0;document.getElementById('counter').textContent='0.000000';btn.disabled=false;btn.textContent='Withdraw All';conf.style.display='block';conf.textContent='Withdrawal Confirmed · 0xabc123def4567890';setTimeout(()=>conf.style.display='none',4000)},1500)
+    }
+
+    const events=['StreamCreated','Withdrawn','Paused','TopUp']
+    const logRows=document.getElementById('logRows')
+    let blk=1200000
+    function addEvent(){
+      blk+=Math.floor(Math.random()*4)+1
+      const type=events[Math.floor(Math.random()*events.length)]
+      const cls=type==='Withdrawn'?'ok':type==='Paused'?'warn':'badge'
+      const tr=document.createElement('tr')
+      tr.innerHTML=`<td class="mono">${blk}</td><td><span class="badge ${cls}">${type}</span></td><td>${type} event emitted</td><td class="mono">0x${Math.random().toString(16).slice(2,12)}...</td>`
+      logRows.prepend(tr)
+      while(logRows.children.length>10) logRows.removeChild(logRows.lastChild)
+    }
+    for(let i=0;i<4;i++) addEvent()
+    setInterval(addEvent,8000)
+  </script>
+</body>
+</html>

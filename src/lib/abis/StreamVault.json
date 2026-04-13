@@ -1,0 +1,15 @@
+[
+  {"type":"function","name":"getStream","stateMutability":"view","inputs":[{"name":"streamId","type":"uint256"}],"outputs":[{"name":"","type":"tuple","components":[{"name":"id","type":"uint256"},{"name":"employer","type":"address"},{"name":"employee","type":"address"},{"name":"token","type":"address"},{"name":"totalDeposit","type":"uint256"},{"name":"withdrawn","type":"uint256"},{"name":"scaledRate","type":"uint256"},{"name":"startTime","type":"uint256"},{"name":"endTime","type":"uint256"},{"name":"status","type":"uint8"}]}]},
+  {"type":"function","name":"claimableBalance","stateMutability":"view","inputs":[{"name":"streamId","type":"uint256"}],"outputs":[{"name":"","type":"uint256"}]},
+  {"type":"function","name":"earnedBalance","stateMutability":"view","inputs":[{"name":"streamId","type":"uint256"}],"outputs":[{"name":"","type":"uint256"}]},
+  {"type":"function","name":"employeeStreams","stateMutability":"view","inputs":[{"name":"employee","type":"address"}],"outputs":[{"name":"","type":"uint256[]"}]},
+  {"type":"function","name":"nextStreamId","stateMutability":"view","inputs":[],"outputs":[{"name":"","type":"uint256"}]},
+  {"type":"function","name":"activeStreamCount","stateMutability":"view","inputs":[],"outputs":[{"name":"","type":"uint256"}]},
+  {"type":"function","name":"activeDepositsByToken","stateMutability":"view","inputs":[{"name":"token","type":"address"}],"outputs":[{"name":"","type":"uint256"}]},
+  {"type":"function","name":"createStream","stateMutability":"nonpayable","inputs":[{"name":"params","type":"tuple","components":[{"name":"employee","type":"address"},{"name":"token","type":"address"},{"name":"totalDeposit","type":"uint256"},{"name":"startTime","type":"uint256"},{"name":"endTime","type":"uint256"}]}],"outputs":[{"name":"streamId","type":"uint256"}]},
+  {"type":"function","name":"withdrawAll","stateMutability":"nonpayable","inputs":[{"name":"streamId","type":"uint256"},{"name":"to","type":"address"}],"outputs":[{"name":"amount","type":"uint256"}]},
+  {"type":"function","name":"pauseStream","stateMutability":"nonpayable","inputs":[{"name":"streamId","type":"uint256"}],"outputs":[]},
+  {"type":"function","name":"resumeStream","stateMutability":"nonpayable","inputs":[{"name":"streamId","type":"uint256"}],"outputs":[]},
+  {"type":"function","name":"cancelStream","stateMutability":"nonpayable","inputs":[{"name":"streamId","type":"uint256"}],"outputs":[]},
+  {"type":"function","name":"topUpStream","stateMutability":"nonpayable","inputs":[{"name":"streamId","type":"uint256"},{"name":"additionalAmount","type":"uint256"}],"outputs":[]}
+]
