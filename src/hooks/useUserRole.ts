@@ -16,14 +16,16 @@ export function useUserRole() {
   const registry = registryContract(chainId)
   const factory = factoryContract(chainId)
 
+  const roleContracts = address
+    ? ([
+        { ...registry, functionName: 'isEmployerActive', args: [address] },
+        { ...registry, functionName: 'isKYCApproved', args: [address] },
+        { ...factory, functionName: 'hasVault', args: [address] },
+      ] as const)
+    : undefined
+
   const roleReads = useReadContracts({
-    contracts: address
-      ? [
-          { ...registry, functionName: 'isEmployerActive', args: [address] },
-          { ...registry, functionName: 'isKYCApproved', args: [address] },
-          { ...factory, functionName: 'hasVault', args: [address] },
-        ]
-      : [],
+    contracts: roleContracts,
     query: { enabled: !!address },
   })
 
