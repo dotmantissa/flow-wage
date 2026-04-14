@@ -1,33 +1,50 @@
-import { Loader2 } from 'lucide-react'
+import { BriefcaseBusiness, UserRound } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { useAccount } from 'wagmi'
-import { useKYCStatus } from '@/hooks/usePayrollRegistry'
+import { useAppStore } from '@/store/useAppStore'
 import { truncateAddress } from '@/lib/utils'
 
-const statusMap: Record<number, { label: string; color: string; message: string }> = {
-  0: { label: 'Unverified', color: 'text-slate-300', message: 'Your wallet has not started KYC yet.' },
-  1: { label: 'Pending', color: 'text-amber-300', message: 'KYC is under review by protocol operators.' },
-  2: { label: 'Approved', color: 'text-emerald-300', message: 'KYC approved. You can now interact as a worker.' },
-  3: { label: 'Revoked', color: 'text-red-300', message: 'KYC has been revoked. Contact support.' },
-}
-
-export function OnboardingPage() {
+export function OnboardingPage({ canBeEmployer }: { canBeEmployer: boolean }) {
+  const reduce = useReducedMotion()
   const { address } = useAccount()
-  const status = useKYCStatus(address)
-  const value = Number(status.data ?? 0)
-  const current = statusMap[value] ?? statusMap[0]
+  const setPreferredMode = useAppStore((s) => s.setPreferredMode)
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-16">
-      <div className="rounded-xl border bg-card p-6">
-        <h2 className="text-2xl font-semibold">Onboarding</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Wallet: {truncateAddress(address)}</p>
-        <div className={`mt-4 inline-flex rounded-full border px-3 py-1 text-sm ${current.color}`}>{current.label}</div>
-        <p className="mt-3 text-muted-foreground">{current.message}</p>
-        <button className="mt-4 flex items-center gap-2 rounded-md border px-4 py-2" onClick={() => status.refetch()}>
-          {status.isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          Check Again
-        </button>
-      </div>
+    <div className="mx-auto max-w-5xl px-4 py-16">
+      <motion.div className="glass rounded-3xl p-8" initial={reduce ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0 : 0.38 }}>
+        <p className="text-xs uppercase tracking-[0.26em] text-[#C4B5FD]">Onboarding</p>
+        <h2 className="mt-3 text-4xl font-semibold md:text-5xl">Choose your role</h2>
+        <p className="mt-3 text-sm text-muted-foreground">Wallet: {truncateAddress(address)}</p>
+        <p className="mt-6 max-w-2xl text-base font-light text-muted-foreground">Select your perspective. You can switch later by disconnecting and reconnecting.</p>
+
+        <div className="mt-7 grid gap-4 md:grid-cols-2">
+          <motion.button
+            whileHover={reduce ? undefined : { y: -6, scale: 1.01 }}
+            whileTap={reduce ? undefined : { scale: 0.97 }}
+            className={`glass rounded-2xl p-5 text-left transition ${canBeEmployer ? 'hover:shadow-[0_0_40px_rgba(124,58,237,0.32)]' : 'cursor-not-allowed opacity-60'}`}
+            onClick={() => canBeEmployer && setPreferredMode('employer')}
+            disabled={!canBeEmployer}
+          >
+            <div className="flex items-center gap-2 text-lg font-semibold">
+              <BriefcaseBusiness className="h-5 w-5 text-[#A78BFA]" /> Employer
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">Create streams, manage payroll schedules, pause and resume salary flows.</p>
+            {!canBeEmployer ? <p className="mt-2 text-xs text-amber-300">This wallet is not registered as an active employer on-chain.</p> : null}
+          </motion.button>
+
+          <motion.button
+            whileHover={reduce ? undefined : { y: -6, scale: 1.01 }}
+            whileTap={reduce ? undefined : { scale: 0.97 }}
+            className="glass rounded-2xl p-5 text-left transition hover:shadow-[0_0_40px_rgba(124,58,237,0.32)]"
+            onClick={() => setPreferredMode('worker')}
+          >
+            <div className="flex items-center gap-2 text-lg font-semibold">
+              <UserRound className="h-5 w-5 text-[#A78BFA]" /> Worker
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">Track streamed earnings in real time and withdraw available balances at will.</p>
+          </motion.button>
+        </div>
+      </motion.div>
     </div>
   )
 }

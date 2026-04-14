@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useAccount } from 'wagmi'
 import { ConnectWalletPage } from '@/pages/ConnectWalletPage'
 import { WrongNetworkPage } from '@/pages/WrongNetworkPage'
@@ -38,63 +38,77 @@ function TimedLoading({ onRetry }: { onRetry: () => void }) {
 }
 
 export default function App() {
+  const reduce = useReducedMotion()
   const { isConnected } = useAccount()
   const { isCorrectNetwork } = useNetworkGuard()
   const { role, isLoading, refetch } = useUserRole()
   const isDemoMode = useAppStore((s) => s.isDemoMode)
+  const preferredMode = useAppStore((s) => s.preferredMode)
 
   const page = useMemo(() => {
     if (isDemoMode) return <DemoPage />
     if (!isConnected) return <ConnectWalletPage />
     if (!isCorrectNetwork) return <WrongNetworkPage />
     if (isLoading) return <TimedLoading onRetry={() => refetch()} />
-    if (role?.isEmployer) {
+    if (!preferredMode) {
+      return (
+        <ErrorBoundary title="Onboarding">
+          <OnboardingPage canBeEmployer={Boolean(role?.isEmployer)} />
+        </ErrorBoundary>
+      )
+    }
+    if (preferredMode === 'employer') {
       return (
         <ErrorBoundary title="Employer Dashboard">
           <EmployerDashboard />
         </ErrorBoundary>
       )
     }
-    if (role?.isWorker) {
-      return (
-        <ErrorBoundary title="Worker Dashboard">
-          <WorkerDashboard />
-        </ErrorBoundary>
-      )
-    }
     return (
-      <ErrorBoundary title="Onboarding">
-        <OnboardingPage />
+      <ErrorBoundary title="Worker Dashboard">
+        <WorkerDashboard />
       </ErrorBoundary>
     )
-  }, [isDemoMode, isConnected, isCorrectNetwork, isLoading, role, refetch])
+  }, [isDemoMode, isConnected, isCorrectNetwork, isLoading, role, refetch, preferredMode])
 
   const key = isDemoMode
     ? 'demo'
     : isConnected
       ? isCorrectNetwork
         ? role?.isEmployer
-          ? 'employer'
-          : role?.isWorker
+          ? preferredMode === 'employer'
+            ? 'employer'
+            : preferredMode === 'worker'
+              ? 'worker'
+              : 'onboarding'
+          : preferredMode === 'worker'
             ? 'worker'
             : 'onboarding'
         : 'network'
       : 'connect'
 
   return (
-    <>
+    <div className="app-shell">
+      <div className="orb orb-a" />
+      <div className="orb orb-b" />
+      <div className="orb orb-c" />
       <AnimatePresence mode="wait">
         <motion.div
           key={key}
-          initial={{ opacity: 0, y: 8 }}
+          initial={reduce ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.22 }}
+          exit={reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+          transition={{ duration: reduce ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] }}
         >
           {page}
         </motion.div>
       </AnimatePresence>
       <MissingConfigBanner />
-    </>
+      {!isDemoMode ? (
+        <div className="fixed bottom-4 left-1/2 z-50 w-[min(92vw,720px)] -translate-x-1/2 rounded-lg border border-amber-300/40 bg-amber-500/10 px-4 py-2 text-center text-xs text-amber-200">
+          Testnet mode: KYC checks are temporarily relaxed. KYC will be compulsory at mainnet launch.
+        </div>
+      ) : null}
+    </div>
   )
 }

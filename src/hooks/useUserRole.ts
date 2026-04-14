@@ -56,7 +56,7 @@ export function useUserRole() {
 
     return {
       isEmployer,
-      isWorker: kycApproved,
+      isWorker: true,
       kycApproved,
       hasVault: hasVaultLocal,
       vaultAddress,
