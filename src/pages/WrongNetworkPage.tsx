@@ -1,8 +1,18 @@
 import { AlertTriangle, Loader2 } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { useNetworkGuard } from '@/hooks/useNetworkGuard'
 
 export function WrongNetworkPage() {
   const { currentChainId, switchToHashKey, isSwitching } = useNetworkGuard()
+  const attemptedRef = useRef(false)
+
+  useEffect(() => {
+    if (attemptedRef.current || isSwitching) return
+    attemptedRef.current = true
+    void switchToHashKey().catch(() => {
+      attemptedRef.current = false
+    })
+  }, [isSwitching, switchToHashKey])
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">

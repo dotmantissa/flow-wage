@@ -44,26 +44,25 @@ export default function App() {
   const { role, isLoading, refetch } = useUserRole()
   const isDemoMode = useAppStore((s) => s.isDemoMode)
   const preferredMode = useAppStore((s) => s.preferredMode)
+  const preferredModeByAddress = useAppStore((s) => s.preferredModeByAddress)
   const lastConnectedAddress = useAppStore((s) => s.lastConnectedAddress)
   const setPreferredMode = useAppStore((s) => s.setPreferredMode)
   const setLastConnectedAddress = useAppStore((s) => s.setLastConnectedAddress)
 
   useEffect(() => {
-    if (!isConnected) {
-      if (lastConnectedAddress !== null || preferredMode !== null) {
-        setLastConnectedAddress(null)
-        setPreferredMode(null)
-      }
-      return
-    }
+    if (!isConnected || !address) return
 
-    if (!address) return
+    const key = address.toLowerCase()
+    const saved = preferredModeByAddress[key] ?? null
 
     if (lastConnectedAddress !== address) {
-      setPreferredMode(null)
       setLastConnectedAddress(address)
     }
-  }, [isConnected, address, lastConnectedAddress, preferredMode, setLastConnectedAddress, setPreferredMode])
+
+    if (preferredMode !== saved) {
+      setPreferredMode(saved)
+    }
+  }, [isConnected, address, lastConnectedAddress, preferredMode, preferredModeByAddress, setLastConnectedAddress, setPreferredMode])
 
   const page = useMemo(() => {
     if (isDemoMode) return <DemoPage />

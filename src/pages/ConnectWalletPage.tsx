@@ -1,6 +1,7 @@
 import { ArrowRight, Loader2, ShieldCheck, Wallet2, Zap } from 'lucide-react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useConnect } from 'wagmi'
+import { hashkeyTestnet } from '@/lib/chains'
 import { useAppStore } from '@/store/useAppStore'
 
 export function ConnectWalletPage() {
@@ -102,7 +103,7 @@ export function ConnectWalletPage() {
               whileTap={reduce ? undefined : { scale: 0.97 }}
               className="btn-primary mt-6 flex w-full items-center gap-2"
               disabled={isPending || !primaryConnector}
-              onClick={() => primaryConnector && connect({ connector: primaryConnector })}
+              onClick={() => primaryConnector && connect({ connector: primaryConnector, chainId: hashkeyTestnet.id })}
             >
               {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {primaryConnector ? `Connect ${connectorLabel(primaryConnector.name)}` : 'Connect Wallet'} <ArrowRight className="h-4 w-4" />
@@ -111,7 +112,7 @@ export function ConnectWalletPage() {
             {walletConnectors.length > 1 ? (
               <div className="mt-3 grid gap-2">
                 {walletConnectors.slice(1).map((connector) => (
-                  <button key={connector.uid} className="btn-ghost w-full" disabled={isPending} onClick={() => connect({ connector })}>
+                  <button key={connector.uid} className="btn-ghost w-full" disabled={isPending} onClick={() => connect({ connector, chainId: hashkeyTestnet.id })}>
                     Connect with {connectorLabel(connector.name)}
                   </button>
                 ))}

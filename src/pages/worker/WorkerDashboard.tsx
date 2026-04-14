@@ -78,6 +78,9 @@ export function WorkerDashboard() {
   const { address } = useAccount()
   const vault = useAppStore((s) => s.vaultAddress)
   const setVaultAddress = useAppStore((s) => s.setVaultAddress)
+  const userRole = useAppStore((s) => s.userRole)
+  const preferredMode = useAppStore((s) => s.preferredMode)
+  const setPreferredMode = useAppStore((s) => s.setPreferredMode)
   const workerVaults = useAppStore((s) => s.workerVaults)
   const addWorkerVault = useAppStore((s) => s.addWorkerVault)
   const removeWorkerVault = useAppStore((s) => s.removeWorkerVault)
@@ -139,7 +142,7 @@ export function WorkerDashboard() {
           <p className="mt-2 text-sm text-muted-foreground">Track claimable income, connect your vault, and withdraw in one tap.</p>
         </motion.div>
 
-        <section className="glass rounded-2xl p-5">
+        <section className="glass scroll-mt-28 rounded-2xl p-5">
           <h2 className="text-lg font-semibold">Connected vaults</h2>
           {workerVaults.length === 0 ? (
             <p className="mt-2 text-sm text-muted-foreground">No vaults connected yet.</p>
@@ -160,7 +163,7 @@ export function WorkerDashboard() {
         </section>
 
         {!vault ? (
-          <section className="glass rounded-2xl p-5">
+          <section className="glass scroll-mt-28 rounded-2xl p-5">
             <h2 className="text-xl font-semibold">Connect your payroll vault</h2>
             <p className="mt-1 text-sm text-muted-foreground">Paste vault address from your employer to load your salary streams.</p>
             <div className="mt-4 flex flex-col gap-2 md:flex-row">
@@ -176,7 +179,7 @@ export function WorkerDashboard() {
           </section>
         ) : null}
 
-        <section className="rounded-2xl border border-[#00e5b4]/30 bg-[var(--bg-card)] p-6 shadow-[0_0_40px_rgba(0,229,180,0.12)]">
+        <section className="scroll-mt-28 rounded-2xl border border-[#00e5b4]/30 bg-[var(--bg-card)] p-6 shadow-[0_0_40px_rgba(0,229,180,0.12)]">
           <p className="text-[10px] uppercase tracking-[0.15em] text-[rgba(255,255,255,0.5)]">AVAILABLE TO WITHDRAW</p>
           <p className="mt-3 font-mono text-[clamp(48px,8vw,80px)] font-semibold leading-none text-[#00e5b4]">{heroValue}</p>
           <p className="mt-3 text-sm text-muted-foreground">
@@ -195,7 +198,7 @@ export function WorkerDashboard() {
           </div>
         </section>
 
-        <section id="streams" className="grid gap-4">
+        <section id="streams" className="scroll-mt-28 grid gap-4">
           {vault ? (
             ids.length > 0 ? (
               ids.map((id) => <WorkerStreamCard key={id.toString()} vault={vault} id={id} />)
@@ -205,7 +208,7 @@ export function WorkerDashboard() {
           ) : null}
         </section>
 
-        <section id="security" className="glass rounded-2xl p-5">
+        <section id="security" className="glass scroll-mt-28 rounded-2xl p-5">
           <h2 className="text-lg font-semibold">Recent Withdrawals</h2>
           {withdrawals.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">Withdrawals will appear here after your first transaction</p>
@@ -222,6 +225,21 @@ export function WorkerDashboard() {
               ))}
             </div>
           )}
+
+          <div className="mt-5 rounded-xl border border-white/10 bg-[var(--bg-raise)] p-3">
+            <p className="text-sm font-medium">Dashboard settings</p>
+            <p className="mt-1 text-xs text-muted-foreground">Primary role persists for this wallet across future connections.</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" className={`btn-ghost ${preferredMode === 'worker' ? 'border-[var(--purple)]' : ''}`} onClick={() => setPreferredMode('worker')}>Worker</button>
+              <button type="button" className={`btn-ghost ${preferredMode === 'both' ? 'border-[var(--purple)]' : ''}`} onClick={() => setPreferredMode('both')}>
+                Add Employer View
+              </button>
+              <button type="button" className={`btn-ghost ${preferredMode === 'employer' ? 'border-[var(--purple)]' : ''}`} onClick={() => setPreferredMode('employer')} disabled={!userRole?.isEmployer}>
+                Employer Only
+              </button>
+            </div>
+            {!userRole?.isEmployer ? <p className="mt-2 text-xs text-amber-300">Employer-only mode unlocks after your wallet is active as employer on-chain.</p> : null}
+          </div>
         </section>
       </main>
     </div>

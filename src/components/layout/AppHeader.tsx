@@ -53,7 +53,9 @@ export function AppHeader({ role }: Props) {
   const navigateTo = (id: string) => {
     const node = document.getElementById(id)
     if (node) {
-      node.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+      const top = node.getBoundingClientRect().top + window.scrollY - 112
+      window.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' })
+      setActiveId(id)
       setOpen(false)
       return
     }

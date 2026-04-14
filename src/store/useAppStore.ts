@@ -8,6 +8,7 @@ type AppState = {
   workerVaults: `0x${string}`[]
   activeStreamId: bigint | null
   preferredMode: 'employer' | 'worker' | 'both' | null
+  preferredModeByAddress: Record<string, 'employer' | 'worker' | 'both'>
   isDemoMode: boolean
   lastConnectedAddress: `0x${string}` | null
   setUserRole: (role: UserRole | null) => void
@@ -29,6 +30,7 @@ export const useAppStore = create<AppState>()(
       workerVaults: [],
       activeStreamId: null,
       preferredMode: null,
+      preferredModeByAddress: {},
       isDemoMode: false,
       lastConnectedAddress: null,
       setUserRole: (userRole) => set({ userRole }),
@@ -43,7 +45,18 @@ export const useAppStore = create<AppState>()(
           vaultAddress: state.vaultAddress === address ? null : state.vaultAddress,
         })),
       setActiveStreamId: (activeStreamId) => set({ activeStreamId }),
-      setPreferredMode: (preferredMode) => set({ preferredMode }),
+      setPreferredMode: (preferredMode) =>
+        set((state) => {
+          const nextMap = { ...state.preferredModeByAddress }
+          const key = state.lastConnectedAddress?.toLowerCase()
+
+          if (key) {
+            if (preferredMode) nextMap[key] = preferredMode
+            else delete nextMap[key]
+          }
+
+          return { preferredMode, preferredModeByAddress: nextMap }
+        }),
       setDemoMode: (isDemoMode) => set({ isDemoMode }),
       setLastConnectedAddress: (lastConnectedAddress) => set({ lastConnectedAddress }),
       clearSession: () =>
@@ -61,6 +74,7 @@ export const useAppStore = create<AppState>()(
         isDemoMode: state.isDemoMode,
         lastConnectedAddress: state.lastConnectedAddress,
         preferredMode: state.preferredMode,
+        preferredModeByAddress: state.preferredModeByAddress,
         workerVaults: state.workerVaults,
       }),
     },
