@@ -4,7 +4,6 @@ import { useAccount } from 'wagmi'
 import { ConnectWalletPage } from '@/pages/ConnectWalletPage'
 import { WrongNetworkPage } from '@/pages/WrongNetworkPage'
 import { LoadingPage } from '@/pages/LoadingPage'
-import { OnboardingPage } from '@/pages/OnboardingPage'
 import { EmployerDashboard } from '@/pages/employer/EmployerDashboard'
 import { WorkerDashboard } from '@/pages/worker/WorkerDashboard'
 import { DemoPage } from '@/pages/DemoPage'
@@ -40,7 +39,7 @@ function TimedLoading({ onRetry }: { onRetry: () => void }) {
 export default function App() {
   const reduce = useReducedMotion()
   const { isConnected, address } = useAccount()
-  const { isCorrectNetwork } = useNetworkGuard()
+  const { isCorrectNetwork, switchToHashKey, isSwitching } = useNetworkGuard()
   const { role, isLoading, refetch } = useUserRole()
   const isDemoMode = useAppStore((s) => s.isDemoMode)
   const preferredMode = useAppStore((s) => s.preferredMode)
@@ -53,7 +52,7 @@ export default function App() {
     if (!isConnected || !address) return
 
     const key = address.toLowerCase()
-    const saved = preferredModeByAddress[key] ?? null
+    const saved = preferredModeByAddress[key] === 'employer' ? 'employer' : 'worker'
 
     if (lastConnectedAddress !== address) {
       setLastConnectedAddress(address)
@@ -64,43 +63,22 @@ export default function App() {
     }
   }, [isConnected, address, lastConnectedAddress, preferredMode, preferredModeByAddress, setLastConnectedAddress, setPreferredMode])
 
+  useEffect(() => {
+    if (isConnected && !isCorrectNetwork && !isSwitching) {
+      void switchToHashKey().catch(() => {})
+    }
+  }, [isConnected, isCorrectNetwork, isSwitching, switchToHashKey])
+
   const page = useMemo(() => {
     if (isDemoMode) return <DemoPage />
     if (!isConnected) return <ConnectWalletPage />
     if (!isCorrectNetwork) return <WrongNetworkPage />
     if (isLoading) return <TimedLoading onRetry={() => refetch()} />
-    if (!preferredMode) {
-      return (
-        <ErrorBoundary title="Onboarding">
-          <OnboardingPage canBeEmployer={Boolean(role?.isEmployer)} />
-        </ErrorBoundary>
-      )
-    }
-    if (preferredMode === 'employer') {
-      if (!role?.isEmployer) {
-        return (
-          <ErrorBoundary title="Onboarding">
-            <OnboardingPage canBeEmployer={Boolean(role?.isEmployer)} />
-          </ErrorBoundary>
-        )
-      }
+    const mode = preferredMode === 'employer' ? 'employer' : 'worker'
+    if (mode === 'employer') {
       return (
         <ErrorBoundary title="Employer Dashboard">
           <EmployerDashboard />
-        </ErrorBoundary>
-      )
-    }
-    if (preferredMode === 'both') {
-      if (role?.isEmployer) {
-        return (
-          <ErrorBoundary title="Employer Dashboard">
-            <EmployerDashboard />
-          </ErrorBoundary>
-        )
-      }
-      return (
-        <ErrorBoundary title="Worker Dashboard">
-          <WorkerDashboard />
         </ErrorBoundary>
       )
     }
@@ -109,23 +87,15 @@ export default function App() {
         <WorkerDashboard />
       </ErrorBoundary>
     )
-  }, [isDemoMode, isConnected, isCorrectNetwork, isLoading, role, refetch, preferredMode])
+  }, [isDemoMode, isConnected, isCorrectNetwork, isLoading, refetch, preferredMode])
 
   const key = isDemoMode
     ? 'demo'
     : isConnected
       ? isCorrectNetwork
-        ? role?.isEmployer
-          ? preferredMode === 'employer'
-            ? 'employer'
-            : preferredMode === 'both'
-              ? 'both'
-            : preferredMode === 'worker'
-              ? 'worker'
-              : 'onboarding'
-          : preferredMode === 'worker'
-            ? 'worker'
-            : 'onboarding'
+        ? preferredMode === 'employer'
+          ? 'employer'
+          : 'worker'
         : 'network'
       : 'connect'
 

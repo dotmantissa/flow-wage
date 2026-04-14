@@ -3,6 +3,7 @@ import { Menu, ShieldCheck, Wallet, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
 import { truncateAddress } from '@/lib/utils'
+import { useAppStore } from '@/store/useAppStore'
 
 type Props = { role: 'Employer' | 'Worker' }
 
@@ -13,6 +14,10 @@ export function AppHeader({ role }: Props) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [activeId, setActiveId] = useState<string>('overview')
+  const preferredMode = useAppStore((s) => s.preferredMode)
+  const setPreferredMode = useAppStore((s) => s.setPreferredMode)
+
+  const mode = preferredMode === 'employer' ? 'employer' : preferredMode === 'worker' ? 'worker' : role.toLowerCase()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -100,7 +105,14 @@ export function AppHeader({ role }: Props) {
           <span className="inline-flex items-center gap-1 rounded-full border border-[#A78BFA]/25 px-3 py-1 text-xs text-muted-foreground">
             <Wallet className="h-3.5 w-3.5" /> {truncateAddress(address)}
           </span>
-          <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs">{role}</span>
+          <select
+            value={mode}
+            onChange={(event) => setPreferredMode(event.target.value as 'employer' | 'worker')}
+            className="rounded-full border border-[#A78BFA]/25 bg-black/30 px-3 py-1 text-xs text-foreground"
+          >
+            <option value="worker">Worker View</option>
+            <option value="employer">Employer View</option>
+          </select>
           <motion.button whileHover={reduce ? undefined : { scale: 1.03 }} whileTap={reduce ? undefined : { scale: 0.97 }} className="btn-ghost" onClick={() => disconnect()}>
             Disconnect
           </motion.button>
@@ -135,6 +147,14 @@ export function AppHeader({ role }: Props) {
                 </button>
               </div>
               <div className="space-y-3">
+                <select
+                  value={mode}
+                  onChange={(event) => setPreferredMode(event.target.value as 'employer' | 'worker')}
+                  className="block w-full rounded-xl border border-[#A78BFA]/20 bg-black/30 px-3 py-2 text-sm"
+                >
+                  <option value="worker">Worker View</option>
+                  <option value="employer">Employer View</option>
+                </select>
                 {links.map((link) => (
                   <button type="button" key={link.label} className="block w-full rounded-xl border border-[#A78BFA]/20 px-3 py-2 text-left text-sm" onClick={() => navigateTo(link.id)}>
                     {link.label}

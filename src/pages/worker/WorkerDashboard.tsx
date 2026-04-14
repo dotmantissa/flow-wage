@@ -78,9 +78,6 @@ export function WorkerDashboard() {
   const { address } = useAccount()
   const vault = useAppStore((s) => s.vaultAddress)
   const setVaultAddress = useAppStore((s) => s.setVaultAddress)
-  const userRole = useAppStore((s) => s.userRole)
-  const preferredMode = useAppStore((s) => s.preferredMode)
-  const setPreferredMode = useAppStore((s) => s.setPreferredMode)
   const workerVaults = useAppStore((s) => s.workerVaults)
   const addWorkerVault = useAppStore((s) => s.addWorkerVault)
   const removeWorkerVault = useAppStore((s) => s.removeWorkerVault)
@@ -226,20 +223,6 @@ export function WorkerDashboard() {
             </div>
           )}
 
-          <div className="mt-5 rounded-xl border border-white/10 bg-[var(--bg-raise)] p-3">
-            <p className="text-sm font-medium">Dashboard settings</p>
-            <p className="mt-1 text-xs text-muted-foreground">Primary role persists for this wallet across future connections.</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" className={`btn-ghost ${preferredMode === 'worker' ? 'border-[var(--purple)]' : ''}`} onClick={() => setPreferredMode('worker')}>Worker</button>
-              <button type="button" className={`btn-ghost ${preferredMode === 'both' ? 'border-[var(--purple)]' : ''}`} onClick={() => setPreferredMode('both')}>
-                Add Employer View
-              </button>
-              <button type="button" className={`btn-ghost ${preferredMode === 'employer' ? 'border-[var(--purple)]' : ''}`} onClick={() => setPreferredMode('employer')} disabled={!userRole?.isEmployer}>
-                Employer Only
-              </button>
-            </div>
-            {!userRole?.isEmployer ? <p className="mt-2 text-xs text-amber-300">Employer-only mode unlocks after your wallet is active as employer on-chain.</p> : null}
-          </div>
         </section>
       </main>
     </div>

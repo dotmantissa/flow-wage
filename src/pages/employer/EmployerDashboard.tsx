@@ -11,9 +11,6 @@ import { StreamsTable } from '@/pages/employer/StreamsTable'
 export function EmployerDashboard() {
   const reduce = useReducedMotion()
   const { address } = useAccount()
-  const userRole = useAppStore((s) => s.userRole)
-  const preferredMode = useAppStore((s) => s.preferredMode)
-  const setPreferredMode = useAppStore((s) => s.setPreferredMode)
   const storeVault = useAppStore((s) => s.vaultAddress)
   const setVaultAddress = useAppStore((s) => s.setVaultAddress)
   const vaultRead = useGetVault(address)
@@ -44,16 +41,6 @@ export function EmployerDashboard() {
 
         <section id="security" className="glass scroll-mt-28 rounded-2xl p-5 text-sm text-muted-foreground">
           <p>Security: all payroll actions require explicit wallet signatures and execute on HashKey testnet.</p>
-          <div className="mt-4 rounded-xl border border-white/10 bg-[var(--bg-raise)] p-3">
-            <p className="text-sm font-medium text-foreground">Dashboard settings</p>
-            <p className="mt-1 text-xs">Primary role persists for this wallet across future connections.</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" className={`btn-ghost ${preferredMode === 'employer' ? 'border-[var(--purple)]' : ''}`} onClick={() => setPreferredMode('employer')}>Employer</button>
-              <button type="button" className={`btn-ghost ${preferredMode === 'both' ? 'border-[var(--purple)]' : ''}`} onClick={() => setPreferredMode('both')}>Enable Both Roles</button>
-              <button type="button" className={`btn-ghost ${preferredMode === 'worker' ? 'border-[var(--purple)]' : ''}`} onClick={() => setPreferredMode('worker')}>Worker View</button>
-            </div>
-            {!userRole?.isEmployer ? <p className="mt-2 text-xs text-amber-300">Employer tools appear once your wallet is active as employer on-chain.</p> : null}
-          </div>
         </section>
       </main>
     </div>
