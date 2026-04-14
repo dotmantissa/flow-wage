@@ -39,11 +39,31 @@ function TimedLoading({ onRetry }: { onRetry: () => void }) {
 
 export default function App() {
   const reduce = useReducedMotion()
-  const { isConnected } = useAccount()
+  const { isConnected, address } = useAccount()
   const { isCorrectNetwork } = useNetworkGuard()
   const { role, isLoading, refetch } = useUserRole()
   const isDemoMode = useAppStore((s) => s.isDemoMode)
   const preferredMode = useAppStore((s) => s.preferredMode)
+  const lastConnectedAddress = useAppStore((s) => s.lastConnectedAddress)
+  const setPreferredMode = useAppStore((s) => s.setPreferredMode)
+  const setLastConnectedAddress = useAppStore((s) => s.setLastConnectedAddress)
+
+  useEffect(() => {
+    if (!isConnected) {
+      if (lastConnectedAddress !== null || preferredMode !== null) {
+        setLastConnectedAddress(null)
+        setPreferredMode(null)
+      }
+      return
+    }
+
+    if (!address) return
+
+    if (lastConnectedAddress !== address) {
+      setPreferredMode(null)
+      setLastConnectedAddress(address)
+    }
+  }, [isConnected, address, lastConnectedAddress, preferredMode, setLastConnectedAddress, setPreferredMode])
 
   const page = useMemo(() => {
     if (isDemoMode) return <DemoPage />

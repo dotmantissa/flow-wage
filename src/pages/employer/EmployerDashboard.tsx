@@ -32,11 +32,16 @@ export function EmployerDashboard() {
           <>
             <StatsRow vault={vault} />
             <CreateStreamForm vault={vault} />
-            <div id="streams">
-              <StreamsTable vault={vault} />
-            </div>
           </>
         ) : null}
+
+        <section id="streams">
+          {vault ? <StreamsTable vault={vault} /> : <div className="glass rounded-2xl p-4 text-sm text-muted-foreground">Deploy your vault to start creating streams.</div>}
+        </section>
+
+        <section id="security" className="glass rounded-2xl p-5 text-sm text-muted-foreground">
+          Security: all payroll actions require explicit wallet signatures and execute on HashKey testnet.
+        </section>
       </main>
     </div>
   )

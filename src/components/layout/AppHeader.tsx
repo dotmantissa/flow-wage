@@ -12,12 +12,36 @@ export function AppHeader({ role }: Props) {
   const reduce = useReducedMotion()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [activeId, setActiveId] = useState<string>('overview')
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
     onScroll()
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    const ids = ['overview', 'streams', 'security']
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+
+        if (visible[0]?.target?.id) {
+          setActiveId(visible[0].target.id)
+        }
+      },
+      { rootMargin: '-20% 0px -60% 0px', threshold: [0.15, 0.4, 0.7] },
+    )
+
+    ids.forEach((id) => {
+      const node = document.getElementById(id)
+      if (node) observer.observe(node)
+    })
+
+    return () => observer.disconnect()
   }, [])
 
   const links: Array<{ label: string; id: string }> = [
@@ -56,12 +80,13 @@ export function AppHeader({ role }: Props) {
           {links.map((link) => (
             <motion.button
               key={link.label}
+              type="button"
               whileHover={reduce ? undefined : { y: -1 }}
-              className="group relative text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className={`group relative text-sm transition-colors ${activeId === link.id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
               onClick={() => navigateTo(link.id)}
             >
               {link.label}
-              <span className="absolute -bottom-1 left-1/2 h-px w-0 -translate-x-1/2 bg-[#A78BFA] transition-all duration-200 group-hover:w-full" />
+              <span className={`absolute -bottom-1 left-1/2 h-px -translate-x-1/2 bg-[#A78BFA] transition-all duration-200 ${activeId === link.id ? 'w-full' : 'w-0 group-hover:w-full'}`} />
             </motion.button>
           ))}
         </div>
@@ -79,7 +104,7 @@ export function AppHeader({ role }: Props) {
           </motion.button>
         </div>
 
-        <button className="inline-flex rounded-full border border-[#A78BFA]/25 p-2 md:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
+        <button type="button" className="inline-flex rounded-full border border-[#A78BFA]/25 p-2 md:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
           <Menu className="h-4 w-4" />
         </button>
       </motion.div>
@@ -103,13 +128,13 @@ export function AppHeader({ role }: Props) {
             >
               <div className="mb-6 flex items-center justify-between">
                 <span className="font-mono text-sm">Navigation</span>
-                <button className="rounded-full border border-[#A78BFA]/25 p-1.5" onClick={() => setOpen(false)}>
+                <button type="button" className="rounded-full border border-[#A78BFA]/25 p-1.5" onClick={() => setOpen(false)}>
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <div className="space-y-3">
                 {links.map((link) => (
-                  <button key={link.label} className="block w-full rounded-xl border border-[#A78BFA]/20 px-3 py-2 text-left text-sm" onClick={() => navigateTo(link.id)}>
+                  <button type="button" key={link.label} className="block w-full rounded-xl border border-[#A78BFA]/20 px-3 py-2 text-left text-sm" onClick={() => navigateTo(link.id)}>
                     {link.label}
                   </button>
                 ))}

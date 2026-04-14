@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { isAddress } from 'viem'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Trash2 } from 'lucide-react'
 import { useAccount } from 'wagmi'
 import { motion, useReducedMotion } from 'framer-motion'
 import { AppHeader } from '@/components/layout/AppHeader'
@@ -78,6 +78,9 @@ export function WorkerDashboard() {
   const { address } = useAccount()
   const vault = useAppStore((s) => s.vaultAddress)
   const setVaultAddress = useAppStore((s) => s.setVaultAddress)
+  const workerVaults = useAppStore((s) => s.workerVaults)
+  const addWorkerVault = useAppStore((s) => s.addWorkerVault)
+  const removeWorkerVault = useAppStore((s) => s.removeWorkerVault)
   const [vaultInput, setVaultInput] = useState('')
   const [inputError, setInputError] = useState<string | null>(null)
   const [withdrawals, setWithdrawals] = useState<WithdrawalItem[]>([])
@@ -105,7 +108,10 @@ export function WorkerDashboard() {
       return
     }
     setInputError(null)
-    setVaultAddress(vaultInput as `0x${string}`)
+    const connectedVault = vaultInput as `0x${string}`
+    setVaultAddress(connectedVault)
+    addWorkerVault(connectedVault)
+    setVaultInput('')
   }
 
   const onWithdrawAll = async () => {
@@ -132,6 +138,26 @@ export function WorkerDashboard() {
           <h1 className="text-3xl font-semibold md:text-4xl">Worker earnings cockpit</h1>
           <p className="mt-2 text-sm text-muted-foreground">Track claimable income, connect your vault, and withdraw in one tap.</p>
         </motion.div>
+
+        <section className="glass rounded-2xl p-5">
+          <h2 className="text-lg font-semibold">Connected vaults</h2>
+          {workerVaults.length === 0 ? (
+            <p className="mt-2 text-sm text-muted-foreground">No vaults connected yet.</p>
+          ) : (
+            <div className="mt-3 grid gap-2">
+              {workerVaults.map((item) => (
+                <div key={item} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-[var(--bg-raise)] px-3 py-2">
+                  <button type="button" className={`rounded-full px-3 py-1.5 text-left font-mono text-xs transition ${vault === item ? 'bg-[var(--purple-bg)] text-white' : 'bg-white/5 text-muted-foreground hover:text-white'}`} onClick={() => setVaultAddress(item)}>
+                    {item}
+                  </button>
+                  <button type="button" className="inline-flex items-center gap-1 rounded-lg border border-white/20 px-2 py-1 text-xs text-muted-foreground hover:text-white" onClick={() => removeWorkerVault(item)}>
+                    <Trash2 className="h-3.5 w-3.5" /> Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         {!vault ? (
           <section className="glass rounded-2xl p-5">
