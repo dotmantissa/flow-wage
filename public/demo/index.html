@@ -8,23 +8,318 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; font-family: 'DM Sans', sans-serif; background:#0b0e14; color:#e6edf3; }
-    .mono{font-family:'IBM Plex Mono',monospace}
-    .container{max-width:1100px;margin:0 auto;padding:16px}
-    .tabs{display:flex;gap:8px}
-    .tab{background:#121826;border:1px solid #293247;color:#cbd5e1;padding:8px 12px;border-radius:8px;cursor:pointer}
-    .tab.active{background:#00e5b422;color:#00e5b4;border-color:#00e5b4}
-    .panel{display:none;margin-top:16px}
-    .panel.active{display:block}
-    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    .card{background:#121826;border:1px solid #293247;border-radius:12px;padding:14px}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;border-bottom:1px solid #293247;text-align:left;font-size:14px}
-    .btn{background:#00e5b4;color:#001910;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
-    .badge{padding:2px 8px;border-radius:999px;font-size:12px}
-    .ok{background:#00e5b422;color:#00e5b4}.warn{background:#f59e0b22;color:#fbbf24}.bad{background:#ef444422;color:#f87171}
-    .hero{font-size:56px;text-align:center;margin:16px 0 6px}
-    .banner{margin-top:12px;padding:10px;border-radius:8px;background:#16a34a33;color:#86efac;display:none}
+    :root {
+      --bg-base: #0b0e14;
+      --bg-card: #111620;
+      --border: rgba(255,255,255,0.07);
+      --text: #e8eaf0;
+      --muted: #9ba3af;
+      --teal: #00e5b4;
+      --purple: #7c3aed;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-base);
+      color: var(--text);
+    }
+
+    .money,
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tab {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: #cfd6e3;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 160ms ease, border-color 160ms ease;
+    }
+
+    .tab.active {
+      background: rgba(124,58,237,0.16);
+      color: #e8ddff;
+      border-color: rgba(124,58,237,0.45);
+    }
+
+    .panel {
+      display: none;
+      margin-top: 16px;
+      position: relative;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .panel.active::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(124,58,237,0.12) 0%, transparent 70%);
+    }
+
+    .panel > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .stat-card {
+      border-bottom: 2px solid rgba(0,229,180,0.55);
+    }
+
+    .stat-title {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-val {
+      margin-top: 8px;
+      font-size: 28px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: transparent;
+    }
+
+    thead tr {
+      background: rgba(255,255,255,0.03);
+    }
+
+    th {
+      text-align: left;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 16px;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 14px;
+    }
+
+    .claimable {
+      color: var(--teal);
+      font-family: 'IBM Plex Mono', monospace;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--teal);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .badge {
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      border: 1px solid transparent;
+    }
+
+    .badge.active {
+      background: rgba(0,229,180,0.12);
+      color: var(--teal);
+      border-color: rgba(0,229,180,0.25);
+    }
+
+    .badge.paused {
+      background: rgba(245,158,11,0.12);
+      color: #f59e0b;
+      border-color: rgba(245,158,11,0.25);
+    }
+
+    .btn {
+      border-radius: 8px;
+      padding: 6px 16px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .btn-pause {
+      border: 1px solid var(--teal);
+      color: var(--teal);
+    }
+
+    .btn-cancel {
+      border: 1px solid #ef4444;
+      color: #ef4444;
+    }
+
+    .employee-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .label {
+      text-align: center;
+      color: rgba(255,255,255,0.56);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      font-size: 64px;
+      line-height: 1;
+      text-align: center;
+      margin: 16px 0 8px;
+      color: var(--teal);
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+    }
+
+    .sub {
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .fx {
+      margin-top: 8px;
+      text-align: center;
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+    }
+
+    .btn-withdraw {
+      margin-top: 14px;
+      width: 100%;
+      height: 52px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--purple);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 160ms ease;
+    }
+
+    .btn-withdraw:hover {
+      background: #6d28d9;
+    }
+
+    .btn-withdraw:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #ffffff;
+      border-radius: 999px;
+      animation: spin 800ms linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .flash {
+      animation: flash 260ms ease;
+    }
+
+    @keyframes flash {
+      0% { filter: brightness(1); }
+      50% { filter: brightness(1.6); }
+      100% { filter: brightness(1); }
+    }
+
+    .banner {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(16,185,129,0.16);
+      color: #86efac;
+      border: 1px solid rgba(16,185,129,0.3);
+      display: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .banner a {
+      color: #86efac;
+      text-decoration: none;
+    }
+
+    .type-streamcreated { color: #00e5b4; }
+    .type-withdrawn { color: #60a5fa; }
+    .type-paused { color: #f59e0b; }
+    .type-topup { color: #a78bfa; }
+    .type-cancelled { color: #ef4444; }
+
+    .log-row {
+      animation: slideIn 260ms ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (max-width: 840px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero { font-size: 46px; }
+    }
   </style>
 </head>
 <body>
@@ -37,11 +332,11 @@
 
     <section id="employer" class="panel active">
       <div class="grid">
-        <div class="card"><div>Vault Balance</div><div id="vaultBal" class="mono" style="font-size:28px">250000.000000</div></div>
-        <div class="card"><div>Streaming Rate</div><div id="rate" class="mono" style="font-size:28px">0.00002895</div></div>
-        <div class="card"><div>Employees</div><div class="mono" style="font-size:28px">3</div></div>
+        <div class="card stat-card"><div class="stat-title">Vault Balance</div><div id="vaultBal" class="stat-val" style="color:#00e5b4">250000.000000</div></div>
+        <div class="card stat-card"><div class="stat-title">Streaming Rate</div><div id="rate" class="stat-val" style="color:#00e5b4">0.00002895</div></div>
+        <div class="card stat-card"><div class="stat-title">Employees</div><div class="stat-val" style="color:white">3</div></div>
       </div>
-      <div class="card" style="margin-top:12px">
+      <div class="card table-wrap" style="margin-top:12px">
         <table>
           <thead><tr><th>Name</th><th>Currency</th><th>Claimable</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody id="empRows"></tbody>
@@ -50,20 +345,20 @@
     </section>
 
     <section id="employee" class="panel">
-      <div class="card">
-        <div style="text-align:center">
-          <div>Available to Withdraw</div>
-          <div id="counter" class="mono hero">0.000000</div>
-          <div id="subtitle">Earning 0.00000965 USDT/sec</div>
-          <div style="margin-top:8px">HKD 7.82 | PHP 56.21 | IDR 15740 | INR 83.11</div>
-          <button id="withdraw" class="btn" style="margin-top:12px">Withdraw All</button>
-          <div id="confirm" class="banner mono"></div>
+      <div class="employee-wrap">
+        <div class="card">
+          <div class="label">AVAILABLE TO WITHDRAW</div>
+          <div id="counter" class="hero">0.000000</div>
+          <div id="subtitle" class="sub">Earning 0.00000965 USDT/sec</div>
+          <div class="fx">1 USDT → 7.82 HKD  ·  56.21 PHP  ·  83.44 INR</div>
+          <button id="withdraw" class="btn-withdraw">Withdraw All</button>
+          <div id="confirm" class="banner"></div>
         </div>
       </div>
     </section>
 
     <section id="log" class="panel">
-      <div class="card">
+      <div class="card table-wrap">
         <table>
           <thead><tr><th>Block</th><th>Type</th><th>Details</th><th>Tx Hash</th></tr></thead>
           <tbody id="logRows"></tbody>
@@ -73,49 +368,148 @@
   </div>
 
   <script>
-    const tabs=[...document.querySelectorAll('.tab')]
-    tabs.forEach(t=>t.onclick=()=>{tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById(t.dataset.tab).classList.add('active')})
+    const tabs = [...document.querySelectorAll('.tab')]
+    tabs.forEach((tab) => {
+      tab.onclick = () => {
+        tabs.forEach((x) => x.classList.remove('active'))
+        tab.classList.add('active')
+        document.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'))
+        document.getElementById(tab.dataset.tab).classList.add('active')
+      }
+    })
 
-    const rows=[
-      {name:'Alice Reyes',ccy:'PHP',claim:1.0,status:'Active'},
-      {name:'Budi Santoso',ccy:'IDR',claim:0.8,status:'Paused'},
-      {name:'Priya Nair',ccy:'INR',claim:1.2,status:'Active'},
+    const rows = [
+      { id: 0, name: 'Alice Reyes', ccy: 'PHP', claim: 1.247779, status: 'Active' },
+      { id: 1, name: 'Budi Santoso', ccy: 'IDR', claim: 0.812143, status: 'Paused' },
+      { id: 2, name: 'Priya Nair', ccy: 'INR', claim: 1.193522, status: 'Active' },
     ]
-    const empRows=document.getElementById('empRows')
-    function renderRows(){
-      empRows.innerHTML=rows.map(r=>`<tr><td>${r.name}</td><td>${r.ccy}</td><td class="mono">${r.claim.toFixed(6)}</td><td><span class="badge ${r.status==='Active'?'ok':'warn'}">${r.status}</span></td><td><button class="btn">Pause</button> <button class="btn" style="background:#ef4444;color:white">Cancel</button></td></tr>`).join('')
+
+    const empRows = document.getElementById('empRows')
+    function renderRows() {
+      empRows.innerHTML = rows.map((r) => {
+        const isActive = r.status === 'Active'
+        const badge = isActive ? 'active' : 'paused'
+        return `
+          <tr>
+            <td>${r.name}</td>
+            <td>${r.ccy}</td>
+            <td>
+              <span class="claimable">
+                ${isActive ? '<span class="pulse-dot"></span>' : ''}
+                ${r.claim.toFixed(6)}
+              </span>
+            </td>
+            <td><span class="badge ${badge}">${r.status}</span></td>
+            <td>
+              <button class="btn btn-pause">Pause</button>
+              <button class="btn btn-cancel">Cancel</button>
+            </td>
+          </tr>
+        `
+      }).join('')
     }
     renderRows()
 
-    let employerTick=0
-    setInterval(()=>{employerTick+=0.00001;rows.forEach(r=>r.claim+=0.00001);document.getElementById('vaultBal').textContent=(250000+employerTick*1000).toFixed(6);renderRows()},250)
+    let employerTick = 0
+    setInterval(() => {
+      employerTick += 0.00001
+      rows.forEach((r) => {
+        if (r.status === 'Active') r.claim += 0.00001
+      })
+      document.getElementById('vaultBal').textContent = (250000 + employerTick * 1000).toFixed(6)
+      document.getElementById('rate').textContent = (0.00002895 + employerTick / 10).toFixed(8)
+      renderRows()
+    }, 250)
 
-    let counter=0
-    let earning=0.00000965
-    function tick(){counter+=earning/4;document.getElementById('counter').textContent=counter.toFixed(6)}
-    setInterval(tick,250)
+    const counter = document.getElementById('counter')
+    const withdrawBtn = document.getElementById('withdraw')
+    const confirm = document.getElementById('confirm')
 
-    document.getElementById('withdraw').onclick=()=>{
-      const btn=document.getElementById('withdraw')
-      const conf=document.getElementById('confirm')
-      btn.disabled=true; btn.textContent='Confirming...'
-      setTimeout(()=>{counter=0;document.getElementById('counter').textContent='0.000000';btn.disabled=false;btn.textContent='Withdraw All';conf.style.display='block';conf.textContent='Withdrawal Confirmed · 0xabc123def4567890';setTimeout(()=>conf.style.display='none',4000)},1500)
+    function getAlice() {
+      return rows.find((r) => r.name === 'Alice Reyes')
     }
 
-    const events=['StreamCreated','Withdrawn','Paused','TopUp']
-    const logRows=document.getElementById('logRows')
-    let blk=1200000
-    function addEvent(){
-      blk+=Math.floor(Math.random()*4)+1
-      const type=events[Math.floor(Math.random()*events.length)]
-      const cls=type==='Withdrawn'?'ok':type==='Paused'?'warn':'badge'
-      const tr=document.createElement('tr')
-      tr.innerHTML=`<td class="mono">${blk}</td><td><span class="badge ${cls}">${type}</span></td><td>${type} event emitted</td><td class="mono">0x${Math.random().toString(16).slice(2,12)}...</td>`
-      logRows.prepend(tr)
-      while(logRows.children.length>10) logRows.removeChild(logRows.lastChild)
+    function syncEmployeeCounter() {
+      const alice = getAlice()
+      counter.textContent = (alice ? alice.claim : 0).toFixed(6)
     }
-    for(let i=0;i<4;i++) addEvent()
-    setInterval(addEvent,8000)
+
+    setInterval(syncEmployeeCounter, 250)
+
+    withdrawBtn.onclick = () => {
+      withdrawBtn.disabled = true
+      withdrawBtn.innerHTML = '<span class="spinner"></span> Confirming...'
+
+      setTimeout(() => {
+        const alice = getAlice()
+        if (alice) alice.claim = 0
+        counter.textContent = '0.000000'
+        counter.classList.add('flash')
+        setTimeout(() => counter.classList.remove('flash'), 280)
+
+        withdrawBtn.disabled = false
+        withdrawBtn.textContent = 'Withdraw All'
+
+        confirm.style.display = 'block'
+        confirm.innerHTML = '✓ Withdrawal confirmed · 0x7f3a…bc91 · <a href="#">View on explorer →</a>'
+        setTimeout(() => {
+          confirm.style.display = 'none'
+        }, 4000)
+      }, 1500)
+    }
+
+    const logRows = document.getElementById('logRows')
+    const logData = [
+      { block: 4821044, type: 'StreamCreated', details: 'Stream #0 · Alice R. · 25,000 USDT/month', tx: '0x7f3a…bc91' },
+      { block: 4821041, type: 'StreamCreated', details: 'Stream #1 · Budi S. · 18,000 USDT/month', tx: '0x2e1d…a847' },
+      { block: 4821038, type: 'StreamCreated', details: 'Stream #2 · Priya N. · 14,000 USDT/month', tx: '0x9c4f…3310' },
+      { block: 4821035, type: 'PAUSED', details: 'Stream #1 · Budi S.', tx: '0x4b8e…7729' },
+    ]
+
+    function typeClass(type) {
+      const k = type.toLowerCase()
+      if (k === 'streamcreated') return 'type-streamcreated'
+      if (k === 'withdrawn') return 'type-withdrawn'
+      if (k === 'paused') return 'type-paused'
+      if (k === 'topup') return 'type-topup'
+      if (k === 'cancelled') return 'type-cancelled'
+      return ''
+    }
+
+    function renderLog() {
+      logRows.innerHTML = logData.map((item) => `
+        <tr class="log-row">
+          <td class="mono">${item.block.toLocaleString()}</td>
+          <td class="mono ${typeClass(item.type)}">${item.type}</td>
+          <td>${item.details}</td>
+          <td class="mono">${item.tx}</td>
+        </tr>
+      `).join('')
+    }
+    renderLog()
+
+    function randHex(len) {
+      let out = ''
+      const alphabet = '0123456789abcdef'
+      for (let i = 0; i < len; i += 1) out += alphabet[Math.floor(Math.random() * alphabet.length)]
+      return out
+    }
+
+    setInterval(() => {
+      const topBlock = logData[0]?.block ?? 4821044
+      const nextBlock = topBlock + (Math.floor(Math.random() * 3) + 2)
+      const isWithdraw = Math.random() > 0.5
+      const amount = (Math.random() * 3 + 0.4).toFixed(2)
+
+      logData.unshift({
+        block: nextBlock,
+        type: isWithdraw ? 'WITHDRAWN' : 'TOPUP',
+        details: isWithdraw ? `Alice R. · ${amount} USDT` : 'Employer added 5,000 USDT',
+        tx: `0x${randHex(4)}…${randHex(4)}`,
+      })
+
+      renderLog()
+    }, 8000)
   </script>
 </body>
 </html>

@@ -26,6 +26,15 @@ foundry_contracts/cache_forge/
 .pnpm-store/
 .npm/
 
+# Test/report outputs
+coverage/
+
+# Local tool caches and artifacts
+.playwright-mcp/
+*.tsbuildinfo
+.cache/
+.eslintcache
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

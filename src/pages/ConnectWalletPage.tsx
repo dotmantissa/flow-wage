@@ -8,7 +8,13 @@ export function ConnectWalletPage() {
   const { connect, connectors, isPending, error } = useConnect()
   const setDemoMode = useAppStore((s) => s.setDemoMode)
 
-  const connector = connectors.find((c) => c.name.toLowerCase().includes('metamask')) ?? connectors[0]
+  const walletConnectors = connectors
+  const primaryConnector = walletConnectors[0]
+
+  const connectorLabel = (name: string) => {
+    if (name === 'Injected') return 'Browser Wallet'
+    return name
+  }
   const words = ['Salaries', 'streamed.', 'Every', 'second.']
 
   return (
@@ -90,17 +96,28 @@ export function ConnectWalletPage() {
             transition={{ duration: reduce ? 0 : 0.5, delay: reduce ? 0 : 0.25 }}
           >
             <h2 className="text-xl font-semibold">Connect your wallet</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Use your wallet to enter the app. You will choose registration preferences in the next step.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Use any supported EVM wallet to enter the app. You will choose registration preferences in the next step.</p>
             <motion.button
               whileHover={reduce ? undefined : { scale: 1.03 }}
               whileTap={reduce ? undefined : { scale: 0.97 }}
               className="btn-primary mt-6 flex w-full items-center gap-2"
-              disabled={isPending || !connector}
-              onClick={() => connector && connect({ connector })}
+              disabled={isPending || !primaryConnector}
+              onClick={() => primaryConnector && connect({ connector: primaryConnector })}
             >
               {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Enter App <ArrowRight className="h-4 w-4" />
+              {primaryConnector ? `Connect ${connectorLabel(primaryConnector.name)}` : 'Connect Wallet'} <ArrowRight className="h-4 w-4" />
             </motion.button>
+
+            {walletConnectors.length > 1 ? (
+              <div className="mt-3 grid gap-2">
+                {walletConnectors.slice(1).map((connector) => (
+                  <button key={connector.uid} className="btn-ghost w-full" disabled={isPending} onClick={() => connect({ connector })}>
+                    Connect with {connectorLabel(connector.name)}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
             {error ? <p className="mt-3 text-sm text-destructive">{error.message}</p> : null}
             <button className="btn-ghost mt-3 w-full" onClick={() => setDemoMode(true)}>
               Try Demo

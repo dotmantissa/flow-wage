@@ -3,6 +3,20 @@
 @tailwind utilities;
 
 :root {
+  --bg-base: #0b0e14;
+  --bg-card: #111620;
+  --bg-raise: #181e2c;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hi: rgba(255, 255, 255, 0.14);
+  --accent: #00e5b4;
+  --accent-dim: #00b08a;
+  --accent-bg: rgba(0, 229, 180, 0.08);
+  --purple: #7c3aed;
+  --purple-bg: rgba(124, 58, 237, 0.1);
+  --text: #e8eaf0;
+  --muted: #6b7280;
+  --muted-hi: #9ba3af;
+
   --background: 35 22% 94%;
   --foreground: 240 15% 12%;
   --card: 35 22% 96%;
@@ -44,7 +58,7 @@
 }
 
 * {
-  border-color: hsl(var(--border));
+  border-color: var(--border);
   box-sizing: border-box;
 }
 
@@ -56,14 +70,20 @@ body,
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 16% 15%, rgba(124, 58, 237, 0.32), transparent 42%),
-    radial-gradient(circle at 80% 24%, rgba(109, 40, 217, 0.24), transparent 38%),
-    radial-gradient(circle at 54% 88%, rgba(76, 29, 149, 0.3), transparent 36%),
-    hsl(var(--background));
-  color: hsl(var(--foreground));
+  background: var(--bg-base);
+  color: var(--text);
   font-family: 'Sora', 'DM Sans', ui-sans-serif, system-ui, -apple-system;
   text-rendering: optimizeLegibility;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(124, 58, 237, 0.12) 0%, transparent 70%);
 }
 
 h1,
@@ -82,11 +102,7 @@ h3 {
   position: fixed;
   inset: 0;
   z-index: -2;
-  background:
-    radial-gradient(circle at 22% 15%, rgba(124, 58, 237, 0.3), transparent 40%),
-    radial-gradient(circle at 74% 22%, rgba(109, 40, 217, 0.28), transparent 40%),
-    radial-gradient(circle at 50% 92%, rgba(76, 29, 149, 0.34), transparent 40%),
-    linear-gradient(155deg, #0a0a0a 12%, #111111 52%, #0a0a0a 100%);
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(124, 58, 237, 0.12) 0%, transparent 70%);
 }
 
 .app-shell::after {
@@ -101,8 +117,8 @@ h3 {
 }
 
 .glass {
-  background: linear-gradient(140deg, rgba(21, 15, 37, 0.72), rgba(12, 10, 19, 0.62));
-  border: 1px solid rgba(167, 139, 250, 0.24);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
