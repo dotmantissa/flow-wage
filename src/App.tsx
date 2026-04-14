@@ -58,9 +58,30 @@ export default function App() {
       )
     }
     if (preferredMode === 'employer') {
+      if (!role?.isEmployer) {
+        return (
+          <ErrorBoundary title="Onboarding">
+            <OnboardingPage canBeEmployer={Boolean(role?.isEmployer)} />
+          </ErrorBoundary>
+        )
+      }
       return (
         <ErrorBoundary title="Employer Dashboard">
           <EmployerDashboard />
+        </ErrorBoundary>
+      )
+    }
+    if (preferredMode === 'both') {
+      if (role?.isEmployer) {
+        return (
+          <ErrorBoundary title="Employer Dashboard">
+            <EmployerDashboard />
+          </ErrorBoundary>
+        )
+      }
+      return (
+        <ErrorBoundary title="Worker Dashboard">
+          <WorkerDashboard />
         </ErrorBoundary>
       )
     }
@@ -78,6 +99,8 @@ export default function App() {
         ? role?.isEmployer
           ? preferredMode === 'employer'
             ? 'employer'
+            : preferredMode === 'both'
+              ? 'both'
             : preferredMode === 'worker'
               ? 'worker'
               : 'onboarding'

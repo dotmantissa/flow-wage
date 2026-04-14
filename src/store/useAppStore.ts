@@ -6,13 +6,13 @@ type AppState = {
   userRole: UserRole | null
   vaultAddress: `0x${string}` | null
   activeStreamId: bigint | null
-  preferredMode: 'employer' | 'worker' | null
+  preferredMode: 'employer' | 'worker' | 'both' | null
   isDemoMode: boolean
   lastConnectedAddress: `0x${string}` | null
   setUserRole: (role: UserRole | null) => void
   setVaultAddress: (address: `0x${string}` | null) => void
   setActiveStreamId: (id: bigint | null) => void
-  setPreferredMode: (mode: 'employer' | 'worker' | null) => void
+  setPreferredMode: (mode: 'employer' | 'worker' | 'both' | null) => void
   setDemoMode: (enabled: boolean) => void
   setLastConnectedAddress: (address: `0x${string}` | null) => void
   clearSession: () => void

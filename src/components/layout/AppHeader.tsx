@@ -20,7 +20,24 @@ export function AppHeader({ role }: Props) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const links = ['Overview', 'Streams', 'Security']
+  const links: Array<{ label: string; id: string }> = [
+    { label: 'Overview', id: 'overview' },
+    { label: 'Streams', id: 'streams' },
+    { label: 'Security', id: 'security' },
+  ]
+
+  const navigateTo = (id: string) => {
+    const node = document.getElementById(id)
+    if (node) {
+      node.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+      setOpen(false)
+      return
+    }
+    if (id === 'security') {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: reduce ? 'auto' : 'smooth' })
+      setOpen(false)
+    }
+  }
 
   return (
     <header className="sticky top-0 z-40 px-3 pt-3">
@@ -38,11 +55,12 @@ export function AppHeader({ role }: Props) {
         <div className="hidden items-center gap-7 md:flex">
           {links.map((link) => (
             <motion.button
-              key={link}
+              key={link.label}
               whileHover={reduce ? undefined : { y: -1 }}
               className="group relative text-sm text-muted-foreground transition-colors hover:text-foreground"
+              onClick={() => navigateTo(link.id)}
             >
-              {link}
+              {link.label}
               <span className="absolute -bottom-1 left-1/2 h-px w-0 -translate-x-1/2 bg-[#A78BFA] transition-all duration-200 group-hover:w-full" />
             </motion.button>
           ))}
@@ -91,8 +109,8 @@ export function AppHeader({ role }: Props) {
               </div>
               <div className="space-y-3">
                 {links.map((link) => (
-                  <button key={link} className="block w-full rounded-xl border border-[#A78BFA]/20 px-3 py-2 text-left text-sm">
-                    {link}
+                  <button key={link.label} className="block w-full rounded-xl border border-[#A78BFA]/20 px-3 py-2 text-left text-sm" onClick={() => navigateTo(link.id)}>
+                    {link.label}
                   </button>
                 ))}
                 <button className="btn-ghost mt-4 w-full" onClick={() => disconnect()}>

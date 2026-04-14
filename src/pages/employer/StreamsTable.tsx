@@ -10,6 +10,7 @@ function StreamRow({ vault, id }: { vault: `0x${string}`; id: bigint }) {
   const pause = usePauseStream(vault)
   const resume = useResumeStream(vault)
   const cancel = useCancelStream(vault)
+  const actionPending = pause.isPending || resume.isPending || cancel.isPending
 
   const s = stream.data as
     | {
@@ -34,10 +35,10 @@ function StreamRow({ vault, id }: { vault: `0x${string}`; id: bigint }) {
       <td className="p-2"><span className="rounded-full border border-white/20 bg-white/5 px-2 py-1 text-xs">{st}</span></td>
       <td className="p-2">
         {st === 'Active' ? (
-          <div className="flex gap-2"><motion.button whileHover={reduce ? undefined : { y: -1 }} className="rounded-lg border border-white/20 px-2 py-1 text-xs" onClick={() => pause.pauseStream(id)}>Pause</motion.button><motion.button whileHover={reduce ? undefined : { y: -1 }} className="rounded-lg border border-white/20 px-2 py-1 text-xs" onClick={() => cancel.cancelStream(id)}>Cancel</motion.button></div>
+          <div className="flex gap-2"><motion.button whileHover={reduce ? undefined : { y: -1 }} className="rounded-lg border border-white/20 px-2 py-1 text-xs disabled:opacity-50" onClick={() => pause.pauseStream(id)} disabled={actionPending}>{pause.isPending ? 'Pausing...' : 'Pause'}</motion.button><motion.button whileHover={reduce ? undefined : { y: -1 }} className="rounded-lg border border-white/20 px-2 py-1 text-xs disabled:opacity-50" onClick={() => cancel.cancelStream(id)} disabled={actionPending}>{cancel.isPending ? 'Cancelling...' : 'Cancel'}</motion.button></div>
         ) : null}
         {st === 'Paused' ? (
-          <div className="flex gap-2"><motion.button whileHover={reduce ? undefined : { y: -1 }} className="rounded-lg border border-white/20 px-2 py-1 text-xs" onClick={() => resume.resumeStream(id)}>Resume</motion.button><motion.button whileHover={reduce ? undefined : { y: -1 }} className="rounded-lg border border-white/20 px-2 py-1 text-xs" onClick={() => cancel.cancelStream(id)}>Cancel</motion.button></div>
+          <div className="flex gap-2"><motion.button whileHover={reduce ? undefined : { y: -1 }} className="rounded-lg border border-white/20 px-2 py-1 text-xs disabled:opacity-50" onClick={() => resume.resumeStream(id)} disabled={actionPending}>{resume.isPending ? 'Resuming...' : 'Resume'}</motion.button><motion.button whileHover={reduce ? undefined : { y: -1 }} className="rounded-lg border border-white/20 px-2 py-1 text-xs disabled:opacity-50" onClick={() => cancel.cancelStream(id)} disabled={actionPending}>{cancel.isPending ? 'Cancelling...' : 'Cancel'}</motion.button></div>
         ) : null}
       </td>
     </tr>
@@ -98,6 +99,7 @@ function StreamRowCard({ vault, id }: { vault: `0x${string}`; id: bigint }) {
   const pause = usePauseStream(vault)
   const resume = useResumeStream(vault)
   const cancel = useCancelStream(vault)
+  const actionPending = pause.isPending || resume.isPending || cancel.isPending
 
   const s = stream.data as
     | {
@@ -122,14 +124,14 @@ function StreamRowCard({ vault, id }: { vault: `0x${string}`; id: bigint }) {
       <div className="mt-1 flex gap-2">
         {st === 'Active' ? (
           <>
-            <button className="rounded-lg border border-white/20 px-2 py-1 text-xs" onClick={() => pause.pauseStream(id)}>Pause</button>
-            <button className="rounded-lg border border-white/20 px-2 py-1 text-xs" onClick={() => cancel.cancelStream(id)}>Cancel</button>
+            <button className="rounded-lg border border-white/20 px-2 py-1 text-xs disabled:opacity-50" onClick={() => pause.pauseStream(id)} disabled={actionPending}>{pause.isPending ? 'Pausing...' : 'Pause'}</button>
+            <button className="rounded-lg border border-white/20 px-2 py-1 text-xs disabled:opacity-50" onClick={() => cancel.cancelStream(id)} disabled={actionPending}>{cancel.isPending ? 'Cancelling...' : 'Cancel'}</button>
           </>
         ) : null}
         {st === 'Paused' ? (
           <>
-            <button className="rounded-lg border border-white/20 px-2 py-1 text-xs" onClick={() => resume.resumeStream(id)}>Resume</button>
-            <button className="rounded-lg border border-white/20 px-2 py-1 text-xs" onClick={() => cancel.cancelStream(id)}>Cancel</button>
+            <button className="rounded-lg border border-white/20 px-2 py-1 text-xs disabled:opacity-50" onClick={() => resume.resumeStream(id)} disabled={actionPending}>{resume.isPending ? 'Resuming...' : 'Resume'}</button>
+            <button className="rounded-lg border border-white/20 px-2 py-1 text-xs disabled:opacity-50" onClick={() => cancel.cancelStream(id)} disabled={actionPending}>{cancel.isPending ? 'Cancelling...' : 'Cancel'}</button>
           </>
         ) : null}
       </div>

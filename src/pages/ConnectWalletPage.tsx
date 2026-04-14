@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react'
+import { ArrowRight, Loader2, ShieldCheck, Wallet2, Zap } from 'lucide-react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useConnect } from 'wagmi'
 import { useAppStore } from '@/store/useAppStore'
@@ -9,7 +9,7 @@ export function ConnectWalletPage() {
   const setDemoMode = useAppStore((s) => s.setDemoMode)
 
   const connector = connectors.find((c) => c.name.toLowerCase().includes('metamask')) ?? connectors[0]
-  const words = ['Stream', 'wages.', 'Withdraw', 'anytime.']
+  const words = ['Salaries', 'streamed.', 'Every', 'second.']
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -27,7 +27,7 @@ export function ConnectWalletPage() {
 
         <section className="relative grid gap-10 py-12 md:grid-cols-[1.2fr_0.8fr] md:py-20">
           <motion.div initial={reduce ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0 : 0.45 }}>
-            <p className="text-xs uppercase tracking-[0.26em] text-[#C4B5FD]">Payroll, streamed per second</p>
+            <p className="text-xs uppercase tracking-[0.26em] text-[#C4B5FD]">Step 1 of 2 • Connect wallet</p>
             <h1 className="mt-5 text-5xl font-semibold leading-[0.95] md:text-7xl">
               {words.map((word, index) => (
                 <motion.span
@@ -47,7 +47,7 @@ export function ConnectWalletPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: reduce ? 0 : 0.45, delay: reduce ? 0 : 0.45 }}
             >
-              A premium PayFi experience for employers and workers on HashKey testnet.
+              Real-time payroll streaming with instant withdrawals on HashKey testnet.
             </motion.p>
             <motion.div
               className="mt-7 flex flex-wrap gap-2 text-xs"
@@ -55,11 +55,31 @@ export function ConnectWalletPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduce ? 0 : 0.35, delay: reduce ? 0 : 0.62 }}
             >
-              {['169M workers', '6-8% saved', 'Real-time'].map((chip) => (
+              {['Built on HashKey Chain', 'Live stream math', 'Non-custodial vaults'].map((chip) => (
                 <span key={chip} className="rounded-full border border-[#A78BFA]/30 bg-black/30 px-3 py-1">
                   {chip}
                 </span>
               ))}
+            </motion.div>
+
+            <motion.div
+              className="mt-8 grid gap-3 sm:grid-cols-3"
+              initial={reduce ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduce ? 0 : 0.35, delay: reduce ? 0 : 0.7 }}
+            >
+              <div className="glass rounded-2xl p-3">
+                <p className="inline-flex items-center gap-2 text-xs text-muted-foreground"><Wallet2 className="h-3.5 w-3.5 text-[#A78BFA]" /> Connect</p>
+                <p className="mt-1 text-sm">Authenticate wallet access</p>
+              </div>
+              <div className="glass rounded-2xl p-3">
+                <p className="inline-flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="h-3.5 w-3.5 text-[#A78BFA]" /> Choose role</p>
+                <p className="mt-1 text-sm">Employer, worker, or both</p>
+              </div>
+              <div className="glass rounded-2xl p-3">
+                <p className="inline-flex items-center gap-2 text-xs text-muted-foreground"><Zap className="h-3.5 w-3.5 text-[#A78BFA]" /> Start streaming</p>
+                <p className="mt-1 text-sm">Deploy and manage payouts</p>
+              </div>
             </motion.div>
           </motion.div>
 
@@ -69,8 +89,8 @@ export function ConnectWalletPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduce ? 0 : 0.5, delay: reduce ? 0 : 0.25 }}
           >
-            <h2 className="text-xl font-semibold">Connect Your Wallet</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Authenticate to continue into your payroll cockpit.</p>
+            <h2 className="text-xl font-semibold">Connect your wallet</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Use your wallet to enter the app. You will choose registration preferences in the next step.</p>
             <motion.button
               whileHover={reduce ? undefined : { scale: 1.03 }}
               whileTap={reduce ? undefined : { scale: 0.97 }}
@@ -79,12 +99,13 @@ export function ConnectWalletPage() {
               onClick={() => connector && connect({ connector })}
             >
               {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Connect Wallet
+              Enter App <ArrowRight className="h-4 w-4" />
             </motion.button>
             {error ? <p className="mt-3 text-sm text-destructive">{error.message}</p> : null}
             <button className="btn-ghost mt-3 w-full" onClick={() => setDemoMode(true)}>
-              Explore demo without wallet
+              Try Demo
             </button>
+            <p className="mt-3 text-xs text-muted-foreground">No funds are moved on connect. Transactions require explicit wallet approval.</p>
           </motion.div>
         </section>
       </div>
